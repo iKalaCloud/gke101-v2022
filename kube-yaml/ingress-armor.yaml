@@ -1,0 +1,33 @@
+apiVersion: cloud.google.com/v1
+kind: BackendConfig
+metadata:
+  name: config-armor
+spec:
+  securityPolicy:
+    name: example-security-policy
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx3
+  labels:
+    app: nginx-web
+  annotations:
+    cloud.google.com/backend-config: '{"ports": {"80":"config-armor"}}'
+    # cloud.google.com/neg: '{"ingress": true}'
+spec:
+  type: NodePort
+  ports:
+  - port: 80
+    targetPort: 80
+  selector:
+    app: nginx-web
+---
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: nginx-ingress
+spec:
+  backend: #default setting
+    serviceName: nginx3 #YOUR_SERVICE_NAME
+    servicePort: 80 #YOUR_SERVICE_PORT

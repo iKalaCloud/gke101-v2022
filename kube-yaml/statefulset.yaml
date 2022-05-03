@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    run: hello-stateful
+  name: stateful #pod name
+  #finalizers:
+  #- kubernetes.io/pv-protection
+spec:
+  selector:
+    matchLabels:
+      app: stateful-app 
+  replicas: 2
+  serviceName: "servicenamehere"
+  template: #controller object用這裡面的設定來create pod
+    metadata:
+      labels:
+        app: stateful-app
+    spec:
+      containers: 
+      - image: nginx:1.10.0
+        name: nginx-stateful
+        ports:
+        - containerPort: 80
+          name: web
+        volumeMounts:
+        - name: www-name #對應到.volumeClaimTemplates.metadata.name
+          mountPath: /usr/share/nginx/html
+      tolerations:
+      - key: "key1"
+        operator: "Equal"
+        value : "value1"
+        effect: "NoSchedule"
+  volumeClaimTemplates: #宣告這裡外掛一個硬碟，叫做www-name
+  - metadata:
+      name: www-name
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 1Gi
+

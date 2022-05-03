@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    run: hello-label2
+  name: hello-node-1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      run: label2
+  template:
+    metadata:
+      labels:
+        run: label2
+    spec:
+      containers:
+      - image: gcr.io/gcp-expert-sandbox-sasa/node-web-server1:v1
+        name: hello-spec1
+        ports:
+          - containerPort: 3000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx3
+  labels:
+    run: label2
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+    targetPort: 3000
+  selector:
+    run: label2
